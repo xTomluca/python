@@ -1,0 +1,32 @@
+from tkinter import mainloop
+import turtle
+
+turtle.title("Estrella")
+turtle.getscreen()
+turtle.shape("triangle")    
+turtle.shapesize(1, 1, 1)
+turtle.pensize(5)
+turtle.color("white", "purple")
+turtle.bgcolor("black")
+
+turtle.begin_fill()
+turtle.left(45)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.right(135)
+turtle.forward(120)
+turtle.end_fill()
+turtle.right(180)
+
+mainloop()

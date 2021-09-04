@@ -109,14 +109,15 @@ def validar_turno(window, int_hora, int_minuto, fecha, micursor):
     return True
 
 
-def dni_existente(micursor, dni):
+def dni_existente(micursor, dni, condicion):
     dato = (dni,)
     sentencia = "select dni from paciente where dni = %s"
     micursor.execute(sentencia, dato)
     for x in micursor:
-        showerror(
-            "Error",
-            "El paciente ya se encuentra en el sistema, debe modificar el turno",
-        )
+        if condicion == False:
+            showerror(
+                "Error",
+                "El paciente ya se encuentra en el sistema, debe modificar el turno",
+            )
         return True
     return False

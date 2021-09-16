@@ -1,0 +1,6 @@
+{
+    "python.linting.flake8Enabled": false,
+    "python.linting.enabled": true,
+    "python.pythonPath": "e:\\Tomas\\Estudio\\Scripts\\python.exe",
+    "python.linting.banditEnabled": true
+}

@@ -1,5 +1,3 @@
-from logging import exception
-from excepciones import Excepcion
 import validaciones
 import conexion
 from tkinter.messagebox import showerror, showinfo
@@ -27,110 +25,92 @@ class Abmc:
         apellido = apellido_entrada
         dni = dni_entrada
         dia = dia_entrada
+        horario = horario_entrada
+        hora = horario[0] + horario[1]
+        minuto = horario[3] + horario[4]
+        int_hora = int(hora)
+        int_minuto = int(minuto)
+
         if (
-            nombre_entrada
-            and apellido_entrada
-            and dni_entrada
-            and dia_entrada
-            and horario_entrada
+            int_hora >= min_hora
+            and int_hora <= max_hora
+            and int_minuto >= min_min
+            and int_minuto <= max_min
         ):
             if (
-                validaciones.validar_nombre(self, nombre)
-                and validaciones.validar_apellido(self, apellido)
-                and validaciones.validar_dia(self, dia)
-                and validaciones.validar_dni(self, dni)
-                and validaciones.validar_horario(self, horario_entrada)
+                len(nombre) != 0
+                and len(apellido) != 0
+                and len(dni) != 0
+                and len(dia) != 0
             ):
-                horario = horario_entrada
-                hora = horario[0] + horario[1]
-                minuto = horario[3] + horario[4]
-                int_hora = int(hora)
-                int_minuto = int(minuto)
+                fecha = validaciones.validar_dia(self, dia)
                 if (
-                    int_hora >= min_hora
-                    and int_hora <= max_hora
-                    and int_minuto >= min_min
-                    and int_minuto <= max_min
+                    validaciones.validar_dni(self, dni)
+                    and validaciones.validar_horario(self, horario)
+                    and fecha != False
+                    and validaciones.validar_nombre(self, nombre)
+                    and validaciones.validar_apellido(self, apellido)
                 ):
-                    fecha = validaciones.validar_dia(self, dia)
-                    if fecha:
-                        bd = conexion.bd
-                        micursor = conexion.micursor
-                        if (
-                            validaciones.validar_turno(
-                                self, int_hora, int_minuto, fecha, micursor
-                            )
-                            and validaciones.dni_existente(micursor, dni, False)
-                            == False
-                        ):
+                    bd = conexion.bd
+                    micursor = conexion.micursor
+                    if (
+                        validaciones.validar_turno(
+                            self, int_hora, int_minuto, fecha, micursor
+                        )
+                        and validaciones.dni_existente(micursor, dni, False) == False
+                    ):
 
-                            if conexion.tabla_inicializada(micursor):
-                                sql = "INSERT INTO paciente (nombre, apellido, dni, dia, hora, minuto) VALUES (%s, %s, %s, %s,%s,%s)"
-                                datos = (
-                                    nombre,
-                                    apellido,
-                                    dni,
-                                    fecha,
-                                    hora,
-                                    minuto,
-                                )
-                                micursor.execute(sql, datos)
-                                bd.commit()
-                                showinfo(
-                                    "Alta exitosa",
-                                    "Agendado correctamente",
-                                )
-                                self.m_ventana.nombre_entrada.delete(0, "end")
-                                self.m_ventana.apellido_entrada.delete(0, "end")
-                                self.m_ventana.dni_entrada.delete(0, "end")
-                                self.m_ventana.dia_entrada.delete(0, "end")
-                                self.m_ventana.horario_entrada.delete(0, "end")
-                            else:
-                                sql = "INSERT INTO paciente (nombre, apellido, dni, dia, hora, minuto) VALUES (%s, %s, %s, %s,%s,%s)"
-                                datos = (
-                                    nombre,
-                                    apellido,
-                                    dni,
-                                    fecha,
-                                    hora,
-                                    minuto,
-                                )
-                                micursor.execute(sql, datos)
-                                bd.commit()
-                                showinfo("Alta exitosa", "Agendado correctamente")
-                                self.m_ventana.nombre_entrada.delete(0, "end")
-                                self.m_ventana.apellido_entrada.delete(0, "end")
-                                self.m_ventana.dni_entrada.delete(0, "end")
-                                self.m_ventana.dia_entrada.delete(0, "end")
-                                self.m_ventana.horario_entrada.delete(0, "end")
+                        if conexion.tabla_inicializada(micursor):
+                            sql = "INSERT INTO paciente (nombre, apellido, dni, dia, hora, minuto) VALUES (%s, %s, %s, %s,%s,%s)"
+                            datos = (
+                                nombre,
+                                apellido,
+                                dni,
+                                fecha,
+                                hora,
+                                minuto,
+                            )
+                            micursor.execute(sql, datos)
+                            bd.commit()
+                            showinfo(
+                                "Alta exitosa",
+                                "Agendado correctamente",
+                            )
+                            self.m_ventana.nombre_entrada.delete(0, "end")
+                            self.m_ventana.apellido_entrada.delete(0, "end")
+                            self.m_ventana.dni_entrada.delete(0, "end")
+                            self.m_ventana.dia_entrada.delete(0, "end")
+                            self.m_ventana.horario_entrada.delete(0, "end")
+                        else:
+                            print("ELSE")
+                            sql = "INSERT INTO paciente (nombre, apellido, dni, dia, hora, minuto) VALUES (%s, %s, %s, %s,%s,%s)"
+                            datos = (
+                                nombre,
+                                apellido,
+                                dni,
+                                fecha,
+                                hora,
+                                minuto,
+                            )
+                            micursor.execute(sql, datos)
+                            bd.commit()
+                            showinfo("Alta exitosa", "Agendado correctamente")
+                            self.m_ventana.nombre_entrada.delete(0, "end")
+                            self.m_ventana.apellido_entrada.delete(0, "end")
+                            self.m_ventana.dni_entrada.delete(0, "end")
+                            self.m_ventana.dia_entrada.delete(0, "end")
+                            self.m_ventana.horario_entrada.delete(0, "end")
+                    else:
+                        self.m_ventana.nombre_entrada.delete(0, "end")
+                        self.m_ventana.apellido_entrada.delete(0, "end")
+                        self.m_ventana.dni_entrada.delete(0, "end")
                 else:
-                    try:
-                        horario_laboral = ""
-                        if min_hora < 10:
-                            horario_laboral += "0" + str(min_hora) + ":"
-                        else:
-                            horario_laboral += str(min_hora) + ":"
-                        if min_min < 10:
-                            horario_laboral += "0" + str(min_min) + " - "
-                        else:
-                            horario_laboral += str(min_min) + " - "
-                        if max_hora < 10:
-                            horario_laboral += "0" + str(max_hora) + ":"
-                        else:
-                            horario_laboral += str(max_hora) + ":"
-                        if max_min < 10:
-                            horario_laboral += "0" + str(max_min)
-                        else:
-                            horario_laboral += str(max_min)
-                        mensaje = "Fuera del horario: " + horario_laboral
-                        raise Excepcion("Error", mensaje)
-                    except Excepcion as error:
-                        error.mostrarError()
+                    print("algo fallo")
+            else:
+                showerror("Error", "Faltan datos")
+                self.m_ventana.dni_entrada.delete(0, "end")
         else:
-            try:
-                raise Excepcion("Error", "Varios datos se encuentran vacios")
-            except Excepcion as error:
-                error.mostrarError()
+            showerror("Fuera de rango", "0:00 a 23:59")
 
     def modificar_paciente(
         self,
@@ -168,11 +148,11 @@ class Abmc:
                     )
                     and dni
                 ):
-                    if nombre:
-                        """and validaciones.validar_nombre(self, nombre)"""
+                    if nombre and validaciones.validar_nombre(self, nombre):
                         sentencia += "nombre = '{0}'".format(nombre)
                         flag_sentencia = True
                     elif nombre:
+                        showerror("Error nombre", "Nombre ingresado erroneo")
                         datos_correctos = False
                     if apellido and validaciones.validar_apellido(self, apellido):
                         if flag_sentencia:
@@ -181,6 +161,7 @@ class Abmc:
                             sentencia += "apellido = '{0}' ".format(apellido)
                             flag_sentencia = True
                     elif apellido:
+                        showerror("Error apellido", "Apellido ingresado erroneo")
                         datos_correctos = False
                     if dia and horario:
                         hora = horario[0] + horario[1]
@@ -209,40 +190,24 @@ class Abmc:
                                     )
                                     flag_sentencia = True
                             else:
+                                showerror(
+                                    "TURNO", "Error, turno ya asignado anteriormente"
+                                )
                                 datos_correctos = False
-                        else:
-                            try:
-                                horario_laboral = ""
-                                if min_hora < 10:
-                                    horario_laboral += "0" + str(min_hora) + ":"
-                                else:
-                                    horario_laboral += str(min_hora) + ":"
-                                if min_min < 10:
-                                    horario_laboral += "0" + str(min_min) + " - "
-                                else:
-                                    horario_laboral += str(min_min) + " - "
-                                if max_hora < 10:
-                                    horario_laboral += "0" + str(max_hora) + ":"
-                                else:
-                                    horario_laboral += str(max_hora) + ":"
-                                if max_min < 10:
-                                    horario_laboral += "0" + str(max_min)
-                                else:
-                                    horario_laboral += str(max_min)
-                                mensaje = "Fuera del horario: " + horario_laboral
-                                raise Excepcion("Error", mensaje)
-                            except Excepcion as error:
-                                error.mostrarError()
+                                self.m_ventana.dia_entrada.delete(0, "end")
                                 self.m_ventana.horario_entrada.delete(0, "end")
-                                datos_correctos = False
-                    elif dia or horario:
-                        try:
-                            raise Excepcion(
-                                "Completar campos", "Completar día y horario"
+                        else:
+                            showerror(
+                                "Horario incorrecto",
+                                "Probar entre las {0}{0}:{1}{1} a {2}:{3}".format(
+                                    min_hora, min_hora, max_hora, max_min
+                                ),
                             )
-                        except Excepcion as error:
-                            error.mostrarError()
+                            self.m_ventana.horario_entrada.delete(0, "end")
                             datos_correctos = False
+                    elif dia or horario:
+                        showerror("Completar campos", "Completar día y horario")
+                        datos_correctos = False
                     if flag_sentencia and datos_correctos:
                         sentencia += "WHERE dni = '{0}'".format(dni)
                         micursor.execute(sentencia)
@@ -254,15 +219,9 @@ class Abmc:
                         self.m_ventana.horario_entrada.delete(0, "end")
                         showinfo("OK!", "Actualizacion efectuada con exito")
                 else:
-                    try:
-                        raise Excepcion("Datos erroneos", "Unico campo no mutable DNI")
-                    except Excepcion as error:
-                        error.mostrarError()
+                    showerror("Datos erroneos", "Unico campo no mutable DNI")
             else:
-                try:
-                    raise Excepcion("Error", "Verifique que el DNI sea correcto")
-                except Excepcion as error:
-                    error.mostrarError()
+                showerror("El DNI no es correcto", "Verifique que sea correcto")
 
     def baja_paciente(self, dni):
         dato = (dni,)
@@ -277,20 +236,13 @@ class Abmc:
                     bd.commit()
                     showinfo("Eliminado", "Se elimino el paciente con exito")
                 else:
-                    try:
-                        raise Excepcion(
-                            "Error",
-                            "El DNI ingresado no se encuentra en la base de datos",
-                        )
-                    except Excepcion as error:
-                        error.mostrarError()
-            # else:
-            #    showerror("Error", "Verique DNI ingresado")
+                    showerror(
+                        "Error", "El DNI ingresado no se encuentra en la base de datos"
+                    )
+            else:
+                showerror("Error", "Verique DNI ingresado")
         else:
-            try:
-                raise Excepcion("Error", "No hay pacientes cargados")
-            except Excepcion as error:
-                error.mostrarError()
+            showerror("Error", "No hay pacientes cargados")
 
     def listar_pacientes(self):
         self.m_ventana.caja_texto.delete(1.0, "end")
@@ -333,6 +285,7 @@ class Abmc:
         n_dato = 0
         dia_armada = ""
         hora_armada = ""
+        str_lista_pacientes = ""
         datos_paciente = []
 
         sentencia = "select * from paciente where dni = %s"
@@ -346,10 +299,10 @@ class Abmc:
             micursor.execute(sentencia, dato)
 
             global paciente_existe
-            paciente_existe = False
+            paciente_existe = 0
 
             for x in micursor:
-                paciente_existe = True
+                paciente_existe = 1
                 datos_paciente.append(x)
             for campos in datos_paciente:
                 for dato in campos:
@@ -383,13 +336,9 @@ class Abmc:
             if paciente_existe == 1:
                 self.m_ventana.caja_texto.delete(1.0, "end")
             else:
-                try:
-                    raise Excepcion(
-                        "Error paciente",
-                        "El numero de DNI no coincide con ningun paciente",
-                    )
-                except Excepcion as error:
-                    error.mostrarError()
+                showerror(
+                    "Error paciente", "El numero de DNI no coincide con ningun paciente"
+                )
 
     def limpiar_campos(self):
         self.m_ventana.nombre_entrada.delete(0, "end")

@@ -1,6 +1,14 @@
 import re
-from datetime import datetime
+from datetime import date, datetime
 from tkinter.messagebox import showerror
+from excepciones import (
+    ExcepcionValidacionApellido,
+    ExcepcionValidacionDia,
+    ExcepcionValidacionDni,
+    ExcepcionValidacionHorario,
+    ExcepcionValidacionNombre,
+    Excepcion,
+)
 
 
 def validar_nombre(window, nombre):
@@ -10,9 +18,14 @@ def validar_nombre(window, nombre):
     patron = re.compile(secuencia)
     if patron.match(nombre):
         return True
-    window.m_ventana.nombre_entrada.delete(0, "end")
-    showerror("Error formato", "Formato nombre erroneo")
-    return False
+    try:
+        raise ExcepcionValidacionNombre(
+            "Error", "El nombre contiene caracteres invalidos"
+        )
+    except ExcepcionValidacionNombre as error:
+        error.mostrarError()
+        window.m_ventana.nombre_entrada.delete(0, "end")
+        return False
 
 
 def validar_apellido(window, apellido):
@@ -22,9 +35,14 @@ def validar_apellido(window, apellido):
     patron = re.compile(secuencia)
     if patron.match(apellido):
         return True
-    window.m_ventana.apellido_entrada.delete(0, "end")
-    showerror("Error formato", "Formato apellido erroneo")
-    return True
+    try:
+        raise ExcepcionValidacionApellido(
+            "Error", "El apellido contiene caracteres invalidos"
+        )
+    except ExcepcionValidacionApellido as error:
+        error.mostrarError()
+        window.m_ventana.apellido_entrada.delete(0, "end")
+        return False
 
 
 def validar_dni(window, dni):
@@ -32,35 +50,44 @@ def validar_dni(window, dni):
     patron = re.compile(secuencia)
     if patron.fullmatch(dni):
         return True
-
-    window.m_ventana.dni_entrada.delete(0, "end")
-    showerror("Error formato", "Fomato correcto DNI= 31.540.089")
-    return False
+    try:
+        raise ExcepcionValidacionDni(
+            "Error DNI", "El formato correcto del DNI es: 39.111.321"
+        )
+    except ExcepcionValidacionDni as error:
+        error.mostrarError()
+        window.m_ventana.dni_entrada.delete(0, "end")
+        return False
 
 
 def validar_dia(window, dia):
-    secuencia = "[0-9]{2}[/]{1}[0-9]{2}[/]{1}[0-9]{4}"
-    patron = re.compile(secuencia)
-    if patron.fullmatch(dia):
-        str_dia = dia[0] + dia[1]
-        str_mes = dia[3] + dia[4]
-        str_an = dia[6] + dia[7] + dia[8] + dia[9]
-        int_dia = int(str_dia)
-        int_mes = int(str_mes)
-        int_an = int(str_an)
-        try:
-            return datetime(int_an, int_mes, int_dia)
-        except Exception:
-            print("entro a exception")
-            showerror("Error fecha", "Corregir fecha")
-            window.m_ventana.dia_entrada.delete(0, "end")
-            return False
-    showerror(
-        "Error formato",
-        "Fomato correcto DIA= 20/06/2021",
-    )
-    window.m_ventana.dia_entrada.delete(0, "end")
-    return False
+    if len(dia) == 10:
+        secuencia = "[0-9]{2}[/]{1}[0-9]{2}[/]{1}[0-9]{4}"
+        patron = re.compile(secuencia)
+        if patron.fullmatch(dia):
+            str_dia = dia[0] + dia[1]
+            str_mes = dia[3] + dia[4]
+            str_an = dia[6] + dia[7] + dia[8] + dia[9]
+            int_dia = int(str_dia)
+            int_mes = int(str_mes)
+            int_an = int(str_an)
+            try:
+                return datetime(int_an, int_mes, int_dia)
+            except Exception:
+                try:
+                    raise ExcepcionValidacionDia(
+                        "Error", "Formato correcto: 17/09/2021"
+                    )
+                except ExcepcionValidacionDia as error:
+                    window.m_ventana.dia_entrada.delete(0, "end")
+                    error.mostrarError()
+                    return False
+    try:
+        raise ExcepcionValidacionDia("Error", "Formato correcto: 17/09/2021")
+    except ExcepcionValidacionDia as error:
+        window.m_ventana.dia_entrada.delete(0, "end")
+        error.mostrarError()
+        return False
 
 
 def validar_horario(window, horario):
@@ -68,9 +95,12 @@ def validar_horario(window, horario):
     patron = re.compile(secuencia)
     if patron.fullmatch(horario):
         return True
-    showerror("Error formato", "Fomato correcto HORARIO= 12:20")
-    window.m_ventana.horario_entrada.delete(0, "end")
-    return False
+    try:
+        raise ExcepcionValidacionHorario("Error Horario", "Formato correcto: 21:00")
+    except ExcepcionValidacionHorario as error:
+        error.mostrarError()
+        window.m_ventana.horario_entrada.delete(0, "end")
+        return False
 
 
 def validar_turno(window, int_hora, int_minuto, fecha, micursor):
@@ -85,10 +115,11 @@ def validar_turno(window, int_hora, int_minuto, fecha, micursor):
     for paciente in micursor:
         for dato in paciente:
             if n_dato == 0:
-                if dato == fecha.date():
-                    flag_dia = True
-                else:
-                    flag_dia = False
+                if fecha is type(date):
+                    if dato == fecha.date():
+                        flag_dia = True
+                    else:
+                        flag_dia = False
             elif n_dato == 1:
                 if dato == int_hora:
                     flag_hora = True
@@ -100,12 +131,14 @@ def validar_turno(window, int_hora, int_minuto, fecha, micursor):
                 else:
                     flag_minuto = False
             if flag_dia == True and flag_hora == True and flag_minuto == True:
-                showerror("Error", "El turno se encuentra ocupado")
-                window.m_ventana.horario_entrada.delete(0, "end")
-                return False
+                try:
+                    raise Excepcion("Error", "Turno ya asignado anteriormente")
+                except Excepcion as error:
+                    error.mostrarError()
+                    window.m_ventana.horario_entrada.delete(0, "end")
+                    return False
             n_dato += 1
         n_dato = 0
-    print("OKKKKKKKKKK")
     return True
 
 
@@ -115,9 +148,13 @@ def dni_existente(micursor, dni, condicion):
     micursor.execute(sentencia, dato)
     for x in micursor:
         if condicion == False:
-            showerror(
-                "Error",
-                "El paciente ya se encuentra en el sistema, debe modificar el turno",
-            )
+            try:
+                raise Excepcion(
+                    "Error",
+                    "El paciente ya se encuentra en el sistema, debe modificar el turno",
+                )
+            except Excepcion as error:
+                error.mostrarError()
+                return True
         return True
     return False

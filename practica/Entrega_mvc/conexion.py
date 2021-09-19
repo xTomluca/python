@@ -1,7 +1,13 @@
 import mysql.connector
+from tkinter.messagebox import showerror
 
 
 def creacion_conexion_db():
+
+    """
+    Se encarga de crear la base de datos, en caso de existir realiza la conexion
+    """
+
     global bd
     bd = mysql.connector.connect(host="localhost", user="root", passwd="")
     micursor = bd.cursor(buffered=True)
@@ -27,6 +33,11 @@ def creacion_conexion_db():
 
 
 def tabla_inicializada(micursor):
+
+    """
+    Se encarga de verificar si la tabla de encuentra inicializada (si contiene pacientes)
+    """
+
     micursor.execute("select count(*) from paciente")
     cantidad_elementos = []
     for x in micursor:
@@ -36,5 +47,9 @@ def tabla_inicializada(micursor):
     return False
 
 
-bd = creacion_conexion_db()
-micursor = bd.cursor(buffered=True)
+try:
+    bd = creacion_conexion_db()
+    micursor = bd.cursor(buffered=True)
+except Exception:
+    showerror("Error", "No se pudo conectar con la base de datos")
+    exit()

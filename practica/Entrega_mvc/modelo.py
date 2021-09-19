@@ -13,6 +13,9 @@ max_min = 59
 
 class Abmc:
     def __init__(self, window):
+        """
+        Instancia objeto de la clase ABMC
+        """
         self.m_ventana = window
 
     def alta_paciente(
@@ -23,6 +26,12 @@ class Abmc:
         dia_entrada,
         horario_entrada,
     ):
+
+        """
+        Se encarga de realizar el alta de nuevos paciente
+        En caso de encontrarse registrado el mismo dni lanza una excepcion
+        """
+
         nombre = nombre_entrada
         apellido = apellido_entrada
         dni = dni_entrada
@@ -56,12 +65,10 @@ class Abmc:
                     if fecha:
                         bd = conexion.bd
                         micursor = conexion.micursor
-                        if (
-                            validaciones.validar_turno(
-                                self, int_hora, int_minuto, fecha, micursor
-                            )
-                            and validaciones.dni_existente(micursor, dni, False)
-                            == False
+                        if validaciones.dni_existente(
+                            micursor, dni, False
+                        ) == False and validaciones.validar_turno(
+                            self, int_hora, int_minuto, fecha, micursor
                         ):
 
                             if conexion.tabla_inicializada(micursor):
@@ -140,6 +147,13 @@ class Abmc:
         dia_entrada,
         horario_entrada,
     ):
+
+        """
+        Se utiliza para realizar actualizacion de los datos de un paciente inscripto
+        Se pueden modificar todos los campos a excepcion de el DNI
+        En caso de querer modificar turno, debe completar campos de dia y horario
+        """
+
         nombre = nombre_entrada
         apellido = apellido_entrada
         dni = dni_entrada
@@ -265,6 +279,11 @@ class Abmc:
                     error.mostrarError()
 
     def baja_paciente(self, dni):
+
+        """
+        Se utiliza para realizar la baja de un paciente mediante el DNI
+        """
+
         dato = (dni,)
         sentencia = "DELETE FROM paciente where dni = %s"
         bd = conexion.bd
@@ -276,6 +295,11 @@ class Abmc:
                     micursor.execute(sentencia, dato)
                     bd.commit()
                     showinfo("Eliminado", "Se elimino el paciente con exito")
+                    self.m_ventana.nombre_entrada.delete(0, "end")
+                    self.m_ventana.apellido_entrada.delete(0, "end")
+                    self.m_ventana.dni_entrada.delete(0, "end")
+                    self.m_ventana.dia_entrada.delete(0, "end")
+                    self.m_ventana.horario_entrada.delete(0, "end")
                 else:
                     try:
                         raise Excepcion(
@@ -293,6 +317,10 @@ class Abmc:
                 error.mostrarError()
 
     def listar_pacientes(self):
+
+        """
+        Se encarga de listar los pacientes inscriptos en la caja de texto
+        """
         self.m_ventana.caja_texto.delete(1.0, "end")
         str_lista_pacientes = "No hay pacientes cargados"
         cantidad_de_pacientes = []
@@ -329,6 +357,11 @@ class Abmc:
             self.m_ventana.caja_texto.insert("end", str_lista_pacientes)
 
     def mostrar_paciente(self, dni):
+
+        """
+        Se encarga de completar/mostrar los datos del paciente en los entrys buscando mediante el DNI
+        """
+
         dato = (dni,)
         n_dato = 0
         dia_armada = ""
@@ -347,51 +380,55 @@ class Abmc:
 
             global paciente_existe
             paciente_existe = False
-
-            for x in micursor:
-                paciente_existe = True
-                datos_paciente.append(x)
-            for campos in datos_paciente:
-                for dato in campos:
-                    if n_dato == 1:
-                        self.m_ventana.nombre_entrada.insert("end", dato)
-                    elif n_dato == 2:
-                        self.m_ventana.apellido_entrada.insert("end", dato)
-                    elif n_dato == 4:
-                        if dato.day < 10:
-                            dia_armada += "0" + str(dato.day) + "/"
-                        else:
-                            dia_armada += str(dato.day) + "/"
-                        if dato.month < 10:
-                            dia_armada += "0" + str(dato.month) + "/"
-                        else:
-                            dia_armada += str(dato.month) + "/"
-                        dia_armada += str(dato.year)
-                        self.m_ventana.dia_entrada.insert("end", dia_armada)
-                    elif n_dato == 5:
-                        if dato < 10:
-                            hora_armada += "0" + str(dato) + ":"
-                        else:
-                            hora_armada += str(dato) + ":"
-                    elif n_dato == 6:
-                        if dato < 10:
-                            hora_armada += "0" + str(dato)
-                        else:
-                            hora_armada += str(dato)
-                        self.m_ventana.horario_entrada.insert("end", hora_armada)
-                    n_dato += 1
-            if paciente_existe == 1:
-                self.m_ventana.caja_texto.delete(1.0, "end")
-            else:
-                try:
-                    raise Excepcion(
-                        "Error paciente",
-                        "El numero de DNI no coincide con ningun paciente",
-                    )
-                except Excepcion as error:
-                    error.mostrarError()
+            if validaciones.validar_dni(self, dni):
+                for x in micursor:
+                    paciente_existe = True
+                    datos_paciente.append(x)
+                for campos in datos_paciente:
+                    for dato in campos:
+                        if n_dato == 1:
+                            self.m_ventana.nombre_entrada.insert("end", dato)
+                        elif n_dato == 2:
+                            self.m_ventana.apellido_entrada.insert("end", dato)
+                        elif n_dato == 4:
+                            if dato.day < 10:
+                                dia_armada += "0" + str(dato.day) + "/"
+                            else:
+                                dia_armada += str(dato.day) + "/"
+                            if dato.month < 10:
+                                dia_armada += "0" + str(dato.month) + "/"
+                            else:
+                                dia_armada += str(dato.month) + "/"
+                            dia_armada += str(dato.year)
+                            self.m_ventana.dia_entrada.insert("end", dia_armada)
+                        elif n_dato == 5:
+                            if dato < 10:
+                                hora_armada += "0" + str(dato) + ":"
+                            else:
+                                hora_armada += str(dato) + ":"
+                        elif n_dato == 6:
+                            if dato < 10:
+                                hora_armada += "0" + str(dato)
+                            else:
+                                hora_armada += str(dato)
+                            self.m_ventana.horario_entrada.insert("end", hora_armada)
+                        n_dato += 1
+                if paciente_existe == True:
+                    self.m_ventana.caja_texto.delete(1.0, "end")
+                else:
+                    try:
+                        raise Excepcion(
+                            "Error paciente",
+                            "El numero de DNI no coincide con ningun paciente",
+                        )
+                    except Excepcion as error:
+                        error.mostrarError()
 
     def limpiar_campos(self):
+
+        """
+        Se encarga de limpiar todos los entrys
+        """
         self.m_ventana.nombre_entrada.delete(0, "end")
         self.m_ventana.apellido_entrada.delete(0, "end")
         self.m_ventana.dni_entrada.delete(0, "end")

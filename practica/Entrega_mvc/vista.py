@@ -4,15 +4,18 @@ from modelo import Abmc
 
 class VistaApp:
     def __init__(self, parent=None, **configs):
+        """
+        Instancia VistaApp
+        """
         self.my_parent = parent
         self.my_parent.geometry("820x600")
         self.my_parent.title("Agenda de consultorio")
 
-        ##CONTENEDOR PRINCIPAL
+        # CONTENEDOR PRINCIPAL
         self.contenedor = Frame(self.my_parent, bg="#444")
         self.contenedor.pack(expand=YES, fill=BOTH)
 
-        ### TITULO
+        # TITULO
         self.seccion_titulo = Frame(
             self.contenedor, bg="gray", borderwidth=1, relief=RAISED
         )
@@ -29,7 +32,7 @@ class VistaApp:
             expand=NO,
         )
 
-        ### SECCION ENTRY - LABELS - CONTROLES - TEXT
+        # SECCION ENTRY - LABELS - CONTROLES - TEXT
         self.seccion_entrys = Frame(
             self.contenedor, bg="gray", borderwidth=2, relief=RAISED
         )
@@ -42,7 +45,7 @@ class VistaApp:
         self.seccion_cajatexto = Frame(self.contenedor, bg="yellow")
         self.seccion_cajatexto.pack(side=TOP, expand=YES)
 
-        ### ENTRYS Y LABELS
+        # ENTRYS Y LABELS
         Label(self.seccion_entrys, text="Nombre").pack(side=LEFT, expand=NO, fill=Y)
         self.nombre_entrada = Entry(self.seccion_entrys, bg="white", justify=CENTER)
         self.nombre_entrada.pack(side=LEFT, expand=NO, fill=Y)
@@ -58,8 +61,8 @@ class VistaApp:
         Label(self.seccion_entrys, text="Horario").pack(side=LEFT, expand=NO, fill=Y)
         self.horario_entrada = Entry(self.seccion_entrys, bg="white", justify=CENTER)
         self.horario_entrada.pack(side=LEFT, expand=NO, fill=Y)
-        #### BOTONES
 
+        # BOTONES
         self.boton_alta = Button(
             self.seccion_botones,
             text="Alta",
@@ -141,6 +144,9 @@ class VistaApp:
         dia_entrada,
         horario_entrada,
     ):
+        """
+        Se encarga de pasar parametros a Abmc para realizar el alta de un paciente
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.alta_paciente(
             nombre_entrada, apellido_entrada, dni_entrada, dia_entrada, horario_entrada
@@ -154,23 +160,38 @@ class VistaApp:
         dia_entrada,
         horario_entrada,
     ):
+        """
+        Se encarga de pasar parametros a Abmc para realizar la modificacion de un paciente
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.modificar_paciente(
             nombre_entrada, apellido_entrada, dni_entrada, dia_entrada, horario_entrada
         )
 
     def baja_paciente(self, dni):
+        """
+        Se encarga de pasar parametros a Abmc para realizar la baja de un paciente
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.baja_paciente(dni)
 
     def listar_pacientes(self):
+        """
+        Se encarga de solicitar a Abmc la lista de pacientes
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.listar_pacientes()
 
     def mostrar_paciente(self, dni):
+        """
+        Se encarga de solicitar a Abmc que muestre un paciente
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.mostrar_paciente(dni)
 
     def limpiar_campos(self):
+        """
+        Se encarga de solicitar a Abmc que limpie los campos entry
+        """
         self.m_abcm = Abmc(self)
         self.m_abcm.limpiar_campos()

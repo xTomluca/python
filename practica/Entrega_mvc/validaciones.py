@@ -13,6 +13,14 @@ from excepciones import (
 
 def validar_nombre(window, nombre):
 
+    """
+    Se encarga de validar que el nombre del paciente contenga caracteres del alfabeto
+    En caso de ser nombre compuesto permitir espacios
+    Retorna:
+    True si el nombre es valido
+    False, si es invalido (Excepcion)
+    """
+
     cantidad_caracteres = len(nombre)
     secuencia = "[a-zA-Z- ]{" + str(cantidad_caracteres) + "}"
     patron = re.compile(secuencia)
@@ -30,6 +38,14 @@ def validar_nombre(window, nombre):
 
 def validar_apellido(window, apellido):
 
+    """
+    Se encarga de validar que el apellido del paciente contenga caracteres del alfabeto
+    En caso de ser apellido compuesto permitir espacios
+    Retorna:
+    True si el apellido es valido
+    False, si es invalido (Excepcion)
+    """
+
     cantidad_caracteres = len(apellido)
     secuencia = "[a-zA-Z- ]{" + str(cantidad_caracteres) + "}"
     patron = re.compile(secuencia)
@@ -46,6 +62,12 @@ def validar_apellido(window, apellido):
 
 
 def validar_dni(window, dni):
+    """
+    Se encarga de validar que el dni tenga entre 7 y 8 caracteres numeros y dos puntos divisores
+    Retorna:
+    True si el valido es valido
+    False, si es invalido (Excepcion)
+    """
     secuencia = "[0-9]{1,2}[.]{1}[0-9]{3}[.]{1}[0-9]{3}"
     patron = re.compile(secuencia)
     if patron.fullmatch(dni):
@@ -61,6 +83,14 @@ def validar_dni(window, dni):
 
 
 def validar_dia(window, dia):
+
+    """
+    Se encarga de validar que el dia respete el siguiente formato: 11/08/2021
+    Retorna:
+    Datetime si el dia es valido
+    False, si es dia (Excepcion)
+    """
+
     if len(dia) == 10:
         secuencia = "[0-9]{2}[/]{1}[0-9]{2}[/]{1}[0-9]{4}"
         patron = re.compile(secuencia)
@@ -91,6 +121,12 @@ def validar_dia(window, dia):
 
 
 def validar_horario(window, horario):
+    """
+    Se encarga de validar que el horario respete el siguiente formato: 13:20
+    Retorna:
+    True si el horario es valido
+    False, si es invalido (Excepcion)
+    """
     secuencia = "[0-9]{2}[:]{1}[0-9]{2}"
     patron = re.compile(secuencia)
     if patron.fullmatch(horario):
@@ -104,6 +140,14 @@ def validar_horario(window, horario):
 
 
 def validar_turno(window, int_hora, int_minuto, fecha, micursor):
+
+    """
+    Se encarga de validar que el turno no se encuentre ocupado por otro paciente
+    Retorna:
+    True si el turno esta libre
+    False, turno ocupado (Excepcion)
+    """
+
     micursor.execute("select dia, hora, minuto from paciente")
     n_dato = 0
     global flag_dia
@@ -115,7 +159,7 @@ def validar_turno(window, int_hora, int_minuto, fecha, micursor):
     for paciente in micursor:
         for dato in paciente:
             if n_dato == 0:
-                if fecha is type(date):
+                if isinstance(fecha, datetime):
                     if dato == fecha.date():
                         flag_dia = True
                     else:
@@ -143,6 +187,15 @@ def validar_turno(window, int_hora, int_minuto, fecha, micursor):
 
 
 def dni_existente(micursor, dni, condicion):
+
+    """
+    Se encarga de validar si el dni se encuentra registrado en sistema
+    Retorna:
+    True si el paciente ya esta inscripto
+    False, si no se encuentra el paciente
+    (Excepcion en caso de que el parametro condicion sea False utilizado para dar una nueva alta)
+    """
+
     dato = (dni,)
     sentencia = "select dni from paciente where dni = %s"
     micursor.execute(sentencia, dato)

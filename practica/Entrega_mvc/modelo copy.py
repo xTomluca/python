@@ -2,7 +2,6 @@ from logging import exception
 from excepciones import Excepcion
 import validaciones
 import conexion
-from base_datos import Paciente
 from tkinter.messagebox import showerror, showinfo
 from datetime import datetime
 
@@ -355,39 +354,6 @@ class Abmc:
                             str_lista_pacientes += str(dato) + "\n"
                     n_dato += 1
                 n_dato = 0
-            self.m_ventana.caja_texto.insert("end", str_lista_pacientes)
-
-    def listar_pacientes_db(
-        self,
-    ):
-        """
-        Se encarga de listar los pacientes inscriptos en la caja de texto
-        """
-        self.m_ventana.caja_texto.delete(1.0, "end")
-        str_datos_paciente = "No hay pacientes cargados"
-        cantidad_de_pacientes = 0
-        cantidad_de_pacientes = Paciente.select().count()
-        str_lista_pacientes = ""
-        print(Paciente.select().count())
-        if cantidad_de_pacientes > 0:
-            str_datos_paciente = ""
-            for paciente in Paciente.select():
-                str_datos_paciente = (
-                    paciente.nombre
-                    + " | "
-                    + paciente.apellido
-                    + " | "
-                    + paciente.dni
-                    + " | "
-                    + str(paciente.hora)
-                    + ":"
-                    + str(paciente.minuto)
-                )
-                print(paciente.nombre)
-                if cantidad_de_pacientes > 1:
-                    str_lista_pacientes += str_datos_paciente + "\n"
-                else:
-                    self.m_ventana.caja_texto.insert("end", str_datos_paciente)
             self.m_ventana.caja_texto.insert("end", str_lista_pacientes)
 
     def mostrar_paciente(self, dni):

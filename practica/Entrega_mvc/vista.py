@@ -112,7 +112,7 @@ class VistaApp:
             height=1,
             activebackground="OrangeRed",
             activeforeground="White",
-            command=self.listar_pacientes,
+            command=self.listar_pacientes_db,
         ).pack(side=LEFT, expand=NO, fill=Y, padx=30)
 
         self.boton_mostrar = Button(
@@ -181,6 +181,13 @@ class VistaApp:
         """
         self.m_abcm = Abmc(self)
         self.m_abcm.listar_pacientes()
+
+    def listar_pacientes_db(self):
+        """
+        Se encarga de solicitar a Abmc la lista de pacientes
+        """
+        self.m_abcm = Abmc(self)
+        self.m_abcm.listar_pacientes_db()
 
     def mostrar_paciente(self, dni):
         """
